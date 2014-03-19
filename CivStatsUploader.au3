@@ -1,7 +1,7 @@
 #NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_icon=N:\Documents\Projects\PitbossStats\PitBoss_121.ico
-#AutoIt3Wrapper_outfile=N:\Documents\Projects\PitbossStats\CivStatsUploader.exe
+#AutoIt3Wrapper_icon=PitBoss_121.ico
+#AutoIt3Wrapper_outfile=CivStatsUploader.exe
 #AutoIt3Wrapper_Res_Comment=CivStats Uploader
 #AutoIt3Wrapper_Res_Description=CivStats Uploader
 #AutoIt3Wrapper_Res_Fileversion=1.5.3.1
@@ -200,18 +200,18 @@ Global $LOC_Error_BadCharsInProfileName = "A profile name cannot contain any of 
 Func MainLoop()
 	While 1
 		Sleep(100)
-		
+
 		; Horrible nasty hack code to work around the "nested events do not fire" bug:
 		While IsHWnd($WindowChooserWindow) and WinExists($WindowChooserWindow)
 			Sleep(10)
 			; Wait for the WindowChooser Window to be closed
 		WEnd
-		
+
 		; If we were trying to exit and the upload has failed more than twice, we have to give up.
 		If $Exiting == 1 And $FailedUploads > 2 Then
 			ExitScript("GUI Closed. UNABLE TO UPLOAD HALT COMMAND!")
 		EndIf
-		
+
 		; If we were uploading, check to see if it's finished
 		If $Uploading == 1 Then
 			If $WaitingToRetryUpload == 1 Then
@@ -224,7 +224,7 @@ Func MainLoop()
 				UploadNext()
 			EndIf
 		EndIf
-		
+
 		; If we're currently watching the window, we do a couple things.
 		If $Watching == 1 Then
 			; If we are waiting for the window to show up, we should keep checking
@@ -251,27 +251,29 @@ Func MainWindowCreate()
 	$MainWindow = GUICreate($LOC_MainWindowTitle & " " & $UPLOADERVERSION, 275, 165, -1, -1)
 	GUISetOnEvent($GUI_EVENT_CLOSE, "MainWindowCLOSE")
 	GUISetOnEvent($GUI_EVENT_MINIMIZE, "MainWindowMINIMIZE")
-	
+
 	$LabelGameName = GUICtrlCreateLabel($LOC_GameName, 10, 10, 80, 20)
 	$InputGameName = GUICtrlCreateInput($iniGameName, 10, 30, 180, 20)
 	GUICtrlSetOnEvent($InputGameName, "MainWindowINPUTChanged")
 	$ButtonDetectWindow = GUICtrlCreateButton($LOC_DetectWindow, 195, 30, 65, 20)
 	GUICtrlSetOnEvent($ButtonDetectWindow, "MainWindowBUTTONDetectWindow")
-	
+
 	$LabelUserName = GUICtrlCreateLabel($LOC_Username, 10, 60, 125, 20)
 	$InputUserName = GUICtrlCreateInput($iniGameID, 10, 80, 45, 20)
 	GUICtrlSetOnEvent($InputUserName, "MainWindowINPUTChanged")
 	$LabelPass = GUICtrlCreateLabel($LOC_Pass, 65, 60, 160, 20)
 	$InputPass = GUICtrlCreateInput($iniGamePass, 65, 80, 205, 20)
 	GUICtrlSetOnEvent($InputPass, "MainWindowINPUTChanged")
-	
+
 	$ButtonStartWatching = GUICtrlCreateButton($LOC_StartWatching, 10, 115, 90, 20)
 	GUICtrlSetOnEvent($ButtonStartWatching, "MainWindowBUTTONStartWatching")
-	$StatusBarMain = _GuiCtrlStatusBar_Create($MainWindow, _ArrayCreate(253, 275), _ArrayCreate("1", "2"), $SBT_TOOLTIPS)
+	Local $status_bar_edge[2] = [253, 275]
+	Local $status_bar_text[2] = ["1", "2"]
+	$StatusBarMain = _GuiCtrlStatusBar_Create($MainWindow, $status_bar_edge, $status_bar_text, $SBT_TOOLTIPS)
 	Status($LOC_StatusReady)
 	StatusNetIcon($PB_STATUSICON_NET_INACTIVE)
 	GUISetState()
-	
+
 EndFunc   ;==>MainWindowCreate
 
 Func MainWindowCLOSE()
@@ -313,24 +315,24 @@ EndFunc   ;==>ShowWindow
 Func ChooseWindow(ByRef $windowtitles)
 	Dim $numwindows, $i
 	$numwindows = UBound($windowtitles)
-	
+
 	MyLog( "GUI Event: WindowChooser Window Created", $PB_LOGLEVEL_DEBUG)
 	$WindowChooserWindow = GUICreate($LOC_ChooserTitle, 150, 165, -1, -1, $WS_DLGFRAME, -1, $MainWindow)
 	GUISetOnEvent($GUI_EVENT_CLOSE, "WindowChooserCLOSED")
-	
+
 	$LabelWindowChooser = GUICtrlCreateLabel(FormatString($LOC_ChooserLabel, $numwindows), 10, 10, 130, 20)
 	$ListWindows = GUICtrlCreateList("", 10, 30, 130, 90)
 	$ButtonWindowChooserOK = GUICtrlCreateButton("OK", 10, 120, 60, 20)
 	GUICtrlSetOnEvent($ButtonWindowChooserOK, "WindowChooserBUTTONOK")
 	$ButtonWindowChooserCancel = GUICtrlCreateButton("Cancel", 80, 120, 60, 20)
 	GUICtrlSetOnEvent($ButtonWindowChooserCancel, "WindowChooserCLOSED")
-	
+
 	For $i = 1 To $numwindows
 		GUICtrlSetData($ListWindows, $windowtitles[$i - 1] & "|")
 	Next
 	GUISetState()
 	GUISetState(@SW_DISABLE, $MainWindow)
-	
+
 ;~ 	While WinExists($WindowChooserWindow)
 ;~ 		Sleep(10)
 ;~ 		; Wait for the WindowChooser Window to be closed
@@ -379,11 +381,11 @@ EndFunc   ;==>DetectPitbossWindows
 
 #region ProfileWindow
 Func ChooseProfile()
-	
+
 	MyLog("ProfilesGUI()", $PB_LOGLEVEL_DEBUG)
 	$ProfilesWindow = GUICreate($LOC_MainWindowTitle, 270, 255, -1, -1)
 	GUISetOnEvent($GUI_EVENT_CLOSE, "ProfileWindowCLOSED")
-	
+
 	$LabelSelectProfile = GUICtrlCreateLabel($LOC_SelectProfile, 10, 10, 190, 20)
 	$ListProfiles = GUICtrlCreateList("", 10, 30, 150, 180)
 	GUICtrlSetOnEvent($ListProfiles, "ProfileWindowLISTUpdated")
@@ -399,11 +401,11 @@ Func ChooseProfile()
 	If $iniNeverAskProfile = 1 Then GUICtrlSetState($CheckboxProfilesDontAsk, $GUI_CHECKED)
 	$ButtonProfilesOK = GUICtrlCreateButton($LOC_OK, 10, 225, 90, 22)
 	GUICtrlSetOnEvent($ButtonProfilesOK, "ProfileWindowBUTTONOK")
-	
+
 	UpdateProfilesList()
-	
+
 	GUISetState()
-	
+
 	While WinExists($ProfilesWindow)
 		; Wait for the Profiles Window to be closed
 		Sleep(10)
@@ -465,13 +467,13 @@ EndFunc   ;==>ProfileWindowLISTUpdated
 
 Func UpdateProfilesList()
 	MyLog("UpdateProfilesList()", $PB_LOGLEVEL_DEBUG)
-	
+
 	Dim $SectionNames, $numProfiles, $BackupProfile
-	
+
 	$numProfiles = 0
-	
+
 	GUICtrlSetData($ListProfiles, "")
-	
+
 	$BackupProfile = ""
 	$SectionNames = IniReadSectionNames(@ScriptDir & "\" & $INIFILENAME)
 	If @error Or $SectionNames[0] = 0 Then
@@ -480,7 +482,7 @@ Func UpdateProfilesList()
 		For $i = 1 To $SectionNames[0]
 			If $SectionNames[$i] <> "global" Then
 				If $BackupProfile == "" Then $BackupProfile = $SectionNames[$i]
-				
+
 				If $SectionNames[$i] = $ActiveProfile Then
 					GUICtrlSetData($ListProfiles, $SectionNames[$i] & "|", $SectionNames[$i])
 				Else
@@ -490,13 +492,13 @@ Func UpdateProfilesList()
 			EndIf
 		Next
 	EndIf
-	
+
 	If $numProfiles > 1 Then
 		GUICtrlSetState($ButtonProfilesRemove, $GUI_ENABLE)
 	Else
 		GUICtrlSetState($ButtonProfilesRemove, $GUI_DISABLE)
 	EndIf
-	
+
 	If GUICtrlRead($ListProfiles) Then
 		LoadProfileFromIni(GUICtrlRead($ListProfiles))
 	Else
@@ -554,13 +556,13 @@ EndFunc   ;==>StatusNetText
 ;************************
 Func FindPitbossWindow()
 	Dim $WindowTitle
-	
+
 	If $PitbossWindowFound = 1 And WinExists($PitbossWindow) Then
 		Return 1
 	Else
 		$WindowTitle = "'" & $iniGameName & "' successfully saved"""
 		$PitbossWindow = WinGetHandle($WindowTitle)
-		
+
 		If @error = 1 Then
 			$PitbossWindow = 0
 			$PitbossWindowFound = 0
@@ -575,45 +577,45 @@ EndFunc   ;==>FindPitbossWindow
 
 Func ToggleWatching()
 	Dim $i
-	
+
 	If $Watching = 0 Then
 		GUICtrlSetData($ButtonStartWatching, $LOC_StopWatching)
-		
+
 		$GlobalParseTimer = TimerInit()
 		$GD_NumPlayers = 0
 		$GD_TurnTimer = -1
 		$GD_UseTurnTimer = 0
 		$GD_Year = 0
-		
+
 		GUICtrlSetState($InputGameName, $GUI_DISABLE)
 		GUICtrlSetState($InputUserName, $GUI_DISABLE)
 		GUICtrlSetState($InputPass, $GUI_DISABLE)
-		
+
 		Status($LOC_StatusIdle)
-		
+
 		$Watching = 1
 		ParseWindow($PB_PARSELEVEL_INIT)
 	Else
 		GUICtrlSetData($ButtonStartWatching, $LOC_StartWatching)
 		$Watching = 0
 		UploadHaltCommand()
-		
+
 		GUICtrlSetState($InputGameName, $GUI_ENABLE)
 		GUICtrlSetState($InputUserName, $GUI_ENABLE)
 		GUICtrlSetState($InputPass, $GUI_ENABLE)
-		
+
 		Status($LOC_StatusReady)
 	EndIf
 EndFunc   ;==>ToggleWatching
 
 Func ParseWindow($level)
 	Dim $text, $parsetimer, $totalparsetimer, $num, $i, $changed, $regex, $playersfound
-	
+
 	If FindPitbossWindow() = 1 Then
 		$totalparsetimer = TimerInit()
 		$changed = 0
 		Status($LOC_StatusParsing)
-		
+
 		; INIT LEVEL
 		; This is when we first start watching. We need to get basic info like
 		; how many players there are in the game
@@ -638,7 +640,7 @@ Func ParseWindow($level)
 			WEnd
 			$GD_NumPlayers = $playersfound
 			MyLog("There are " & $GD_NumPlayers & " players. Parse Time: " & TimerDiff($parsetimer) / 1000, $PB_LOGLEVEL_INFO)
-			
+
 			;Find out if there is a turn timer in use
 			$parsetimer = TimerInit()
 			$text = ControlGetText($PitbossWindow, "", "Static2")
@@ -650,7 +652,7 @@ Func ParseWindow($level)
 				MyLog("A turn timer is in use and is currently: " & $text & ". Parse Time: " & TimerDiff($parsetimer) / 1000, $PB_LOGLEVEL_INFO)
 			EndIf
 		EndIf
-		
+
 		; "SOME" LEVEL
 		; This checks general game info like the turn timer, year, and MOTD.
 		; This must come before the "ALL" level because it resets a lot of things when the year changes.
@@ -661,14 +663,14 @@ Func ParseWindow($level)
 				MyLog("A new turn has begun! Year: " & $text, $PB_LOGLEVEL_INFO)
 				$GD_Year = $text
 				$changed = 1
-				
+
 				For $i = 1 To $GD_NumPlayers
 					$GD_Players[$i - 1][$PB_ARRAY_FINISHEDTURN] = 0
 				Next
 				;Force a check of all player info because it's a new turn.
 				If $level < $PB_PARSELEVEL_PLAYER Then $level = $PB_PARSELEVEL_PLAYER
 			EndIf
-			
+
 			;Find out how many seconds are left on the turn timer.
 			If $GD_UseTurnTimer = 1 Then
 				$num = GetTurnTimeLeft()
@@ -683,7 +685,7 @@ Func ParseWindow($level)
 				EndIf
 			EndIf
 		EndIf
-		
+
 		; "ALL" LEVEL
 		; This checks all of the players info
 		If $level >= $PB_PARSELEVEL_PLAYER Then
@@ -702,14 +704,14 @@ Func ParseWindow($level)
 				Else
 					$text = $regex[1]
 				EndIf
-				
+
 				;Check to see if this player recently finished his turn
 				If $regex[0] = "*" And $GD_Players[$i - 1][$PB_ARRAY_FINISHEDTURN] = 0 Then
 					MyLog("Player " & $i & " has finished his turn.", $PB_LOGLEVEL_INFO)
 					$GD_Players[$i - 1][$PB_ARRAY_FINISHEDTURN] = 1
 					$changed = 1
 				EndIf
-				
+
 				;Check to see if this player changed his name
 				If $text <> $GD_Players[$i - 1][$PB_ARRAY_PLAYERNAME]Then
 					MyLog("Player " & $i & "'s name is now: " & $text, $PB_LOGLEVEL_INFO)
@@ -717,7 +719,7 @@ Func ParseWindow($level)
 					$changed = 1
 				EndIf
 			Next
-			
+
 			;Find out if anyone's score changed.
 			$parsetimer = TimerInit()
 			For $i = 1 To $GD_NumPlayers
@@ -729,7 +731,7 @@ Func ParseWindow($level)
 					$changed = 1
 				EndIf
 			Next
-			
+
 			;Find out if anyone's "type" changed.
 			$parsetimer = TimerInit()
 			For $i = 1 To $GD_NumPlayers
@@ -742,19 +744,19 @@ Func ParseWindow($level)
 				EndIf
 			Next
 		EndIf
-		
+
 		MyLog("Total Parse Time: " & TimerDiff($totalparsetimer) / 1000, $PB_LOGLEVEL_DEBUG)
-		
+
 		; If it's been more than 15 minutes since the last upload, force one now because the turn timer
 		; gets out of sync.
 		If TimerDiff($TimeSinceLastUpload) > 900 * 1000 Then
 			$changed = 1
 		EndIf
-		
+
 		If $changed = 1 Then
 			UploadData($level)
 		EndIf
-		
+
 		Status($LOC_StatusIdle)
 		$WaitingToParse = $PB_PARSELEVEL_NONE
 	Else
@@ -766,36 +768,36 @@ EndFunc   ;==>ParseWindow
 
 Func GetPlayerName($playernum)
 	Dim $text
-	
+
 	;Static3 = Player 1's name
 	;Static9 = Player 2's name
 	;Static15 = Player 3's name
 	;If there is a turn timer, it's all increased by 1
-	
+
 	$text = ControlGetText($PitbossWindow, "", "Static"& (($playernum - 1) * 6) + 3 + $GD_UseTurnTimer)
 	Return $text
 EndFunc   ;==>GetPlayerName
 
 Func GetPlayerScore($playernum)
 	Dim $text
-	
+
 	;Static7 = Player 1's score
 	;Static13 = Player 2's score
 	;Static19 = Player 3's score
 	;If there is a turn timer, it's all increased by 1
-	
+
 	$text = ControlGetText($PitbossWindow, "", "Static"& (($playernum - 1) * 6) + 7 + $GD_UseTurnTimer)
 	Return $text
 EndFunc   ;==>GetPlayerScore
 
 Func GetPlayerType($playernum)
 	Dim $text
-	
+
 	;Static5 = Player 1's score
 	;Static11 = Player 2's score
 	;Static17 = Player 3's score
 	;If there is a turn timer, it's all increased by 1
-	
+
 	$text = ControlGetText($PitbossWindow, "", "Static"& (($playernum - 1) * 6) + 5 + $GD_UseTurnTimer)
 	If $text = "Unclaimed" Then
 		Return $PB_PLAYERTYPE_UNCLAIMED
@@ -810,7 +812,7 @@ EndFunc   ;==>GetPlayerType
 
 Func GetYear()
 	Dim $text, $regex, $regerror, $year
-	
+
 	$text = ControlGetText($PitbossWindow, "", "Static1")
 	$regex = StringRegExp($text, ".* - ([0-9]+ BC)|.* - ([0-9]+ AD)", 1)
 	$regerror = @error
@@ -860,25 +862,25 @@ EndFunc   ;==>GetTurnTimeLeft
 #region Net Functions
 Func InitUploadData(ByRef $data, $func)
 	Dim $timestamp = _TimeGetStamp()
-	
+
 	If @error = 99 Then
 		$timestamp = 0
 	EndIf
-	
+
 	Dim $data[5][2]
-	
+
 	$data[0][0] = "Func"
 	$data[0][1] = $func
-	
+
 	$data[1][0] = "ID"
 	$data[1][1] = $iniGameID
-	
+
 	$data[2][0] = "Pass"
 	$data[2][1] = $iniGamePass
-	
+
 	$data[3][0] = "UploaderVersion"
 	$data[3][1] = $UPLOADERVERSION
-	
+
 	$data[4][0] = "timestamp"
 	$data[4][1] = $timestamp
 EndFunc   ;==>InitUploadData
@@ -892,34 +894,34 @@ EndFunc   ;==>AddUploadData
 
 Func UploadData($level)
 	Dim $i, $data
-	
+
 	If $level >= $PB_PARSELEVEL_INIT Then
 		InitUploadData($data, "Init")
 		AddUploadData($data, "NumPlayers", $GD_NumPlayers)
 		AddUploadData($data, "UseTurnTimer", $GD_UseTurnTimer)
 		AddUploadData($data, "GameName", $iniGameName)
-		
+
 		QueueUpload($data)
 	EndIf
-	
+
 	If $level >= $PB_PARSELEVEL_GAME Then
 		InitUploadData($data, "GameData")
 		AddUploadData($data, "Year", $GD_Year)
 		AddUploadData($data, "TurnTimer", $GD_TurnTimer)
-		
+
 		QueueUpload($data)
 	EndIf
-	
+
 	If $level >= $PB_PARSELEVEL_PLAYER Then
 		InitUploadData($data, "PlayerData")
-		
+
 		For $i = 1 To $GD_NumPlayers
 			AddUploadData($data, "P" & $i & "Name", $GD_Players[$i - 1][$PB_ARRAY_PLAYERNAME])
 			AddUploadData($data, "P" & $i & "Type", $GD_Players[$i - 1][$PB_ARRAY_PLAYERTYPE])
 			AddUploadData($data, "P" & $i & "Score", $GD_Players[$i - 1][$PB_ARRAY_SCORE])
 			AddUploadData($data, "P" & $i & "Finished", $GD_Players[$i - 1][$PB_ARRAY_FINISHEDTURN])
 		Next
-		
+
 		QueueUpload($data)
 	EndIf
 EndFunc   ;==>UploadData
@@ -927,7 +929,7 @@ EndFunc   ;==>UploadData
 Func UploadHaltCommand()
 	Dim $data
 	InitUploadData($data, "Halt")
-	
+
 	QueueUpload($data)
 EndFunc   ;==>UploadHaltCommand
 
@@ -937,7 +939,7 @@ EndFunc   ;==>UploadHaltCommand
 ; [2] - Human readable error
 Func CheckUpload($data)
 	Dim $regex
-	
+
 	$regex = StringRegExp($data, "pbupload:([^|:]*)\|", 1)
 	Dim $returncode
 	If @error = 1 Then
@@ -945,7 +947,7 @@ Func CheckUpload($data)
 	Else
 		$returncode = int($regex[0])
 	EndIf
-	
+
 	$regex = StringRegExp($data, "\|critical:([^|:]*)\|", 1)
 	Dim $criticalflag
 	If @error = 1 Then
@@ -953,7 +955,7 @@ Func CheckUpload($data)
 	Else
 		$criticalflag = int($regex[0])
 	EndIf
-	
+
 	$regex = StringRegExp($data, "\|error:([^|:]*)\|", 1)
 	Dim $errorname
 	If @error = 1 Then
@@ -961,8 +963,9 @@ Func CheckUpload($data)
 	Else
 		$errorname = $regex[0]
 	EndIf
-	
-	Return _ArrayCreate($returncode, $criticalflag, $errorname)
+
+	Local $return_array[3] = [$returncode, $criticalflag, $errorname]
+	Return $return_array
 EndFunc   ;==>CheckUpload
 
 Func UploadNext()
@@ -970,33 +973,33 @@ Func UploadNext()
 	Dim $QueueLength = UBound($UploadQueue)
 	If $QueueLength < 2 Then
 		$Uploading = 0
-		
+
 		If $Exiting = 1 Then
 			ExitScript("GUI Closed, Halt command uploaded.")
 		EndIf
-		
+
 		StatusNetIcon($PB_STATUSICON_NET_INACTIVE)
 		Return
 	EndIf
-	
+
 	StatusNetIcon($PB_STATUSICON_NET_UPLOADING)
 	$TimeSinceLastUpload = TimerInit()
 	Dim $data = $UploadQueue[1]
-	
+
 	$Uploading = 1
 	$UploadTimer = TimerInit()
-	
+
 	Dim $POSTVars = FormatPOSTVars($data)
 	MyLog("Uploading data: "&$POSTVars, $PB_LOGLEVEL_DEBUG)
 	Dim $s = _HTTPConnect ($SCRIPTHOST)
-	
+
 	If @error = 1 Then
 		MyLog("Unable to connect to server: "&$SCRIPTHOST&" - Windows API WSAGetLasterror: "&@extended, $PB_LOGLEVEL_ERROR)
 		UploadFailed()
 		_HTTPClose($s)
 		Return
 	EndIf
-	
+
 	MyLog("Starting an upload. Func=" & $data[0][1] & " Vars: " & $POSTVars, $PB_LOGLEVEL_DEBUG)
 	_HTTPPost ($SCRIPTHOST, $SCRIPTFILE, $s, $POSTVars)
 	ConsoleWrite(@error&@CRLF)
@@ -1006,10 +1009,10 @@ Func UploadNext()
 		_HTTPClose($s)
 		Return
 	EndIf
-	
+
 	Dim $recv = _HTTPRead ($s, 1)
 	$errorcode = @error
-	
+
 	_HTTPClose($s)
 	Switch $errorcode
 		Case 3 ; Server timeout
@@ -1025,15 +1028,15 @@ Func UploadNext()
 			MyLog("****** CRITICAL ERROR ****** UNABLE TO PARSE PART OF THE HTTP RESPONSE ("&$errorcode&"). PLEASE SUBMIT THIS AS A BUG REPORT. The line that caused the problem is: "& $recv)
 			Return
 	EndSwitch
-	
+
 	If $recv[0] < 200 OR $recv[0] >= 300 Then
 		UploadFailed()
 		MyLog("Server returned an HTTP error. Response: "&$recv[0]&" "&$recv[1], $PB_LOGLEVEL_ERROR)
 		Return
 	EndIf
-	
+
 	Dim $serverresponse = CheckUpload($recv[4])
-	
+
 	If $serverresponse[0] > 0 Then
 		; The upload worked!
 		_ArrayDelete($UploadQueue, 1)
@@ -1079,15 +1082,15 @@ EndFunc   ;==>AbortUploads
 
 Func FormatPOSTVars(ByRef $data)
 	Dim $i, $string
-	
+
 	For $i = 0 To UBound($data) - 1
 		If $i <> 0 Then
 			$string &= "&"
 		EndIf
-		
+
 		$string = $string & $data[$i][0] & "=" & $data[$i][1]
 	Next
-	
+
 	Return _HTTPEncodeString($string)
 EndFunc   ;==>FormatPOSTVars
 
@@ -1095,11 +1098,11 @@ Func QueueUpload($data)
 	MyLog("Queueing data to upload. Func: " & $data[0][1] & " Items in queue before this one: " & UBound($UploadQueue) - 1, $PB_LOGLEVEL_DEBUG)
 	MyLog("Full POST string: "&FormatPOSTVars($data), $PB_LOGLEVEL_DEBUG)
 	Dim $QueueLength
-	
+
 	$QueueLength = UBound($UploadQueue)
 	ReDim $UploadQueue[$QueueLength + 1]
 	$UploadQueue[$QueueLength] = $data
-	
+
 	$Uploading = 1
 EndFunc   ;==>QueueUpload
 #endregion
@@ -1111,25 +1114,25 @@ EndFunc   ;==>QueueUpload
 Func Init()
 	LoadINI()
 	CheckExe()
-	
+
 	_HTTPSetUserAgent("CivStatsUploader", $UPLOADERVERSION)
 	$TrayMenuItemExit = TrayCreateItem($LOC_TrayMenuExit)
 	TrayItemSetOnEvent($TrayMenuItemExit, "Abort")
 	TraySetOnEvent($TRAY_EVENT_PRIMARYDOUBLE, "ShowWindow")
-	
+
 	$Watching = 0
 	$Uploading = 0
 	$FailedUploads = 0
-	
+
 	If $iniNeverAskProfile = 0 Then
 		ChooseProfile()
 	EndIf
-	
+
 	While Not ActivateProfile($ActiveProfile)
 		MsgBox(16 + 8192, $LOC_MainWindowTitle, FormatString($LOC_ProfileInUse, $ActiveProfile))
 		ChooseProfile()
 	WEnd
-	
+
 	InitLog()
 	MainWindowCreate()
 	MainLoop()
@@ -1154,12 +1157,12 @@ EndFunc   ;==>CheckExe
 
 Func LoadINI()
 	Dim $SectionNames, $Settings, $i, $ValidProfile, $BackupProfile
-	
+
 	If FileExists($OLDINIFILENAME) AND Not FileExists($INIFILENAME) Then
 		FileMove(@ScriptDir & "\" & $OLDINIFILENAME,@ScriptDir & "\" & $INIFILENAME)
 		MyLog("Renamed " & $OLDINIFILENAME & " to " & $INIFILENAME,$PB_LOGLEVEL_ERROR)
 	EndIf
-	
+
 	; First load global ini settings
 	$Settings = IniReadSection(@ScriptDir & "\" & $INIFILENAME, "global")
 	If Not @error Then
@@ -1167,7 +1170,7 @@ Func LoadINI()
 			SetIniVariable($Settings[$i][0], $Settings[$i][1])
 		Next
 	EndIf
-	
+
 	; Load the section names to see if there are multiple profiles
 	$SectionNames = IniReadSectionNames(@ScriptDir & "\" & $INIFILENAME)
 	If @error Or $SectionNames[0] < 2 Then
@@ -1182,7 +1185,7 @@ Func LoadINI()
 		; There is only one profile. It should be set as the default profile.
 		$ActiveProfile = $iniDefaultProfile
 	EndIf
-	
+
 	; Now check to make sure the ActiveProfile actually exists. If it does not, we'll fall back
 	; to one we know exists.
 	$ValidProfile = 0
@@ -1199,7 +1202,7 @@ Func LoadINI()
 	If $ValidProfile = 0 Then
 		$ActiveProfile = $BackupProfile
 	EndIf
-	
+
 	; Activate the default profile!
 	LoadProfileFromIni($ActiveProfile)
 EndFunc   ;==>LoadINI
@@ -1223,7 +1226,7 @@ Func MyLog($Line, $level = 1)
 		Else
 			$filename = $ActiveProfile
 		EndIf
-		
+
 		$LogFileName = @ScriptDir & "\" & $filename & ".log"
 		$LogFile = FileOpen($LogFileName, 1)
 		If $Line == "" Then
@@ -1232,7 +1235,7 @@ Func MyLog($Line, $level = 1)
 			FileWriteLine($LogFile, _Now() & " - " & $Line)
 		EndIf
 		FileClose($LogFile)
-		
+
 		If $iniLogLevel >= 4 Then
 			ConsoleWrite(_Now() & " - " & $Line & @CRLF)
 		EndIf
@@ -1252,25 +1255,25 @@ Func FormatString($text, $repl1 = "", $repl2 = "", $repl3 = "", $repl4 = "")
 	If $repl4 <> "" Then
 		$text = StringReplace($text, "%4", $repl4)
 	EndIf
-	
+
 	Return $text
 EndFunc   ;==>FormatString
 
 Func UpdateVarsFromProfilesGUI()
 	MyLog("UpdateVarsFromProfilesGUI()", $PB_LOGLEVEL_DEBUG)
-	
+
 	$iniNeverAskProfile = BitAND(GUICtrlRead($CheckboxProfilesDontAsk), $GUI_CHECKED)
-	
+
 	SaveIniFile()
 EndFunc   ;==>UpdateVarsFromProfilesGUI
 
 Func UpdateVarsFromGUI()
 	MyLog("UpdateVarsFromGUI()", $PB_LOGLEVEL_DEBUG)
-	
+
 	$iniGameName = GUICtrlRead($InputGameName)
 	$iniGameID = GUICtrlRead($InputUserName)
 	$iniGamePass = GUICtrlRead($InputPass)
-	
+
 	SaveIniFile()
 EndFunc   ;==>UpdateVarsFromGUI
 
@@ -1291,11 +1294,11 @@ EndFunc   ;==>SetIniDefaults
 
 Func ActivateProfile($profile)
 	MyLog("ActivateProfile(" & $profile & ")", $PB_LOGLEVEL_DEBUG)
-	
+
 	If WinExists($HIDDENWINDOWTITLEPREFIX & $ActiveProfile) Then
 		Return 0
 	EndIf
-	
+
 	$ActiveProfile = $profile
 	AutoItWinSetTitle($HIDDENWINDOWTITLEPREFIX & $profile)
 	Return 1
@@ -1303,7 +1306,7 @@ EndFunc   ;==>ActivateProfile
 
 Func LoadProfileFromIni($profile)
 	Dim $Settings
-	
+
 	$ActiveProfile = $profile
 	$Settings = IniReadSection(@ScriptDir & "\" & $INIFILENAME, $profile)
 	For $i = 1 To $Settings[0][0]
@@ -1313,7 +1316,7 @@ EndFunc   ;==>LoadProfileFromIni
 
 Func NewProfile($profile)
 	MyLog("NewProfile(" & $profile & ")", $PB_LOGLEVEL_DEBUG)
-	
+
 	$ActiveProfile = $profile
 	SetIniDefaults()
 	SaveIniFile()
@@ -1321,7 +1324,7 @@ EndFunc   ;==>NewProfile
 
 Func DuplicateProfile($oldprofile, $newprofile)
 	MyLog("DuplicateProfile(" & $oldprofile & "," & $newprofile & ")", $PB_LOGLEVEL_DEBUG)
-	
+
 	LoadProfileFromIni($oldprofile)
 	$ActiveProfile = $newprofile
 	SaveIniFile()
@@ -1340,7 +1343,7 @@ EndFunc   ;==>DeleteProfile
 
 Func SaveIniFile()
 	MyLog("SaveIniFile()", $PB_LOGLEVEL_DEBUG)
-	
+
 	if ($iniDefaultProfile <> $fileDefaultProfile Or Not $fileInit) Then
 		IniWrite(@ScriptDir & "\" & $INIFILENAME, "global", "DefaultProfile", $ActiveProfile)
 		$fileDefaultProfile = $iniDefaultProfile
@@ -1361,13 +1364,13 @@ Func SaveIniFile()
 		IniWrite(@ScriptDir & "\" & $INIFILENAME, "global", "CheckInterval", $iniCheckInterval)
 		$fileCheckInterval = $iniCheckInterval
 	EndIf
-	
+
 	IniWrite(@ScriptDir & "\" & $INIFILENAME, $ActiveProfile, "GameName", $iniGameName)
 	IniWrite(@ScriptDir & "\" & $INIFILENAME, $ActiveProfile, "GameID", $iniGameID)
 	IniWrite(@ScriptDir & "\" & $INIFILENAME, $ActiveProfile, "GamePass", $iniGamePass)
-	
-	
-	
+
+
+
 	$fileInit = 1
 EndFunc   ;==>SaveIniFile
 
