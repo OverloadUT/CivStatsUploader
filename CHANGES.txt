@@ -1,0 +1,71 @@
+1.5.3.1
+-------
+= Fixed crash at startup due to new AutoIt version
+
+1.5.3.0
+-------
+= Added support for player counts up to 64 (from 32)
+
+1.5.2.0
+-------
++ Added the ability to specify the window title (for non English versions) as an ini variable: $iniWindowTitleRegex
+  The default (English) value is: '(.+)' successfully saved"
+
+1.5.1.0
+-------
++ Fixed problem with dates past 0 AD
+
+1.5.0.0
+-------
++ Added support for Beyond the Sword. This required some pretty hefty changes in order to keep it
+  backwards compatible with Warlords and Vanilla.
+
+1.0.0.1
+-------
+= Fixed a bug that made the application appear locked up when more than 1 Pitboss window was detected.
+
+1.0.0.0
+-------
+= A couple minor fixes and updates. The uploader is now offcially 1.0!
+
+0.9.0.0
+-------
+MAJOR UPDATE
+= Renamed the application to CivStatsUploader, reflecting the new name of the project.
+= PitbossStats.ini is now CivStatsUploader.ini - it will be automatically renamed the first time you run the new version.
+= Overhauled the way the GUI code works. It's now event based instead of GetMsg based, which should mean the GUI is more responsive while parsing.
+= MAJORLY overhauled the way the uploading works. It now uses my own HTTP functions instead of the built in function, which gives me a lot more power the uploads. This also means no more .tmp files!
+= All uploads are now POST requests instead of GET requests. This should hopefully fix the problem some people have been having where the uploads with lots of data don't go through.
+= Because of the new HTTP functions, more descriptive errors will put in the log when there is a problem.
+= Changed the way the error reporting works when the server returns an error. The server now supplies the error message, so I can add new errors on the server without having to update the Uploader app each time.
+
+0.8.0.10
+--------
+= Fixed a bug where you couldn't create any new profiles or rename profiles.
+
+0.8.0.9
+-------
++ Added special handling if the server returns a "rollback detected" code.
++ Added the uploader version to every upload, so that the server can tell what version you are using.
++ Added a unix timestamp to every upload so the server knows what time the data was actually parsed, not
+  when it was uploaded. This will be useful when for some reason the uploader can't connect for, say, 10
+  minutes. When it finally does connect, the times will be correct instead of all clumping at the time it
+  was finally able to upload.
+
+0.8.0.6
+-------
++ Added a mechanism to check if a profile is already being used in another instance of PitbossStats.
+= Fixed some major problems with the way multiple profiles worked.
+= Changed the way the .ini is saved so that multiple instances of PitbossStats can run better side by side.
+
+0.7.1.0
+-------
++ Added support for players using modified assets. It now strips the "*MOD*" from players' names.
+= Fixed a couple problems with creating a new profile.
+- Removed the "Script Location" box, as it is no longer needed.
+
+0.6.0.0
+-------
++ Improved the status bar to now have an icon showing when data is uploading, as well as show when an upload has failed.
++ Made it so that all of the input boxes are disabled while the monitoring is active.
+= Changed the way it looks for the Pitboss window - you can now "Start Watching" before the Pitboss window is open and it will wait.
