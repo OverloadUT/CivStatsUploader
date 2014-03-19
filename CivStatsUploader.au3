@@ -4,15 +4,14 @@
 #AutoIt3Wrapper_outfile=CivStatsUploader.exe
 #AutoIt3Wrapper_Res_Comment=CivStats Uploader
 #AutoIt3Wrapper_Res_Description=CivStats Uploader
-#AutoIt3Wrapper_Res_Fileversion=1.5.3.1
+#AutoIt3Wrapper_Res_Fileversion=1.5.3.2
 #AutoIt3Wrapper_Res_LegalCopyright=Copyright 2014 Greg Laabs
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Allow_Decompile=n
 
-; AutoIt Version: 3.0
+; AutoIt Version: 3.3.10.2
 ; Language:       English
-; Platform:       WinXP
 ; Author:         Greg Laabs
 
 #include <Date.au3>
